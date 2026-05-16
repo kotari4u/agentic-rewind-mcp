@@ -1,0 +1,32 @@
+{
+  "name": "agentic-rewind-mcp",
+  "version": "0.1.0",
+  "description": "Agentic code-change safety layer with MCP tools, observe-only hooks, checkpointing, risk assessment, recommendations, and decision memory.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "agentic-rewind": "./dist/cli.js",
+    "agentic-rewind-mcp": "./dist/mcp-server.js"
+  },
+  "files": [
+    "dist",
+    ".github/hooks/agentic-rewind.json",
+    ".vscode/mcp.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "node --test test/*.test.js",
+    "verify": "npm run build && npm test",
+    "start:mcp": "node dist/mcp-server.js",
+    "start:cli": "node dist/cli.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "typescript": "^5.8.0"
+  }
+}

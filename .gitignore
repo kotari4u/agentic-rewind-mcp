@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.agentic-rewind/
+.DS_Store
+*.log
+*.tsbuildinfo

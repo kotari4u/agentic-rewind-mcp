@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "agentic-rewind": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/node_modules/agentic-rewind-mcp/dist/mcp-server.js"
+      ],
+      "env": {
+        "AGENTIC_REWIND_WORKSPACE": "${workspaceFolder}"
+      }
+    }
+  }
+}

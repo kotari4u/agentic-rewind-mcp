@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node ./node_modules/agentic-rewind-mcp/dist/cli.js event --type SessionStart"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "node ./node_modules/agentic-rewind-mcp/dist/cli.js event --type UserPromptSubmit"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "node ./node_modules/agentic-rewind-mcp/dist/cli.js event --type PreToolUse"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "node ./node_modules/agentic-rewind-mcp/dist/cli.js event --type PostToolUse"
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node ./node_modules/agentic-rewind-mcp/dist/cli.js event --type Stop"
+      }
+    ]
+  }
+}
