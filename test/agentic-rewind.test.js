@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { createCheckpoint, diffCheckpoint, listCheckpoints, rewindToCheckpoint } from '../dist/checkpoint.js';
-import { assessRisk, prepareHexMemorySave, prepareHexMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from '../dist/agent.js';
+import { assessRisk, prepareEnterpriseMemorySave, prepareEnterpriseMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from '../dist/agent.js';
 
 test('agent can checkpoint, change-rewind middle Java method, and preserve later method', async () => {
   const root = await workspace();
@@ -80,7 +80,7 @@ test('decision memory is searchable', async () => {
   assert.match(JSON.stringify(result.matches[0]), /tests_passed_after_rewind/);
 });
 
-test('hex_memory save preparation returns sanitized shared-memory instructions', async () => {
+test('enterprise_memory save preparation returns sanitized shared-memory instructions', async () => {
   const root = await workspace();
   const decision = await recordDecision(root, {
     decision: 'recommend_rewind',
@@ -93,7 +93,7 @@ test('hex_memory save preparation returns sanitized shared-memory instructions',
     outcome: 'tests_passed_after_rewind'
   });
 
-  const result = await prepareHexMemorySave(root, {
+  const result = await prepareEnterpriseMemorySave(root, {
     decisionId: decision.id,
     workspaceName: 'math-service',
     taskType: 'java_refactor',
@@ -102,9 +102,9 @@ test('hex_memory save preparation returns sanitized shared-memory instructions',
     testsAfter: 'pass'
   });
 
-  assert.equal(result.namespace, 'hex_memory');
+  assert.equal(result.namespace, 'enterprise_memory');
   assert.equal(result.operation, 'save');
-  assert.match(result.instruction, /save .* to hex_memory/i);
+  assert.match(result.instruction, /save .* to enterprise_memory/i);
   assert.equal(result.record.workspaceName, 'math-service');
   assert.equal(result.record.changeType, 'method_addition');
   assert.equal(result.record.evidence.filesChangedCount, 2);
@@ -113,9 +113,9 @@ test('hex_memory save preparation returns sanitized shared-memory instructions',
   assert.match(JSON.stringify(result), /<redacted>/);
 });
 
-test('hex_memory search preparation returns agent instructions and filters', async () => {
+test('enterprise_memory search preparation returns agent instructions and filters', async () => {
   const root = await workspace();
-  const result = await prepareHexMemorySearch(root, {
+  const result = await prepareEnterpriseMemorySearch(root, {
     query: 'print1 method failure',
     taskType: 'java_refactor',
     changeType: 'method_addition',
@@ -123,9 +123,9 @@ test('hex_memory search preparation returns agent instructions and filters', asy
     tags: ['agentic-rewind']
   });
 
-  assert.equal(result.namespace, 'hex_memory');
+  assert.equal(result.namespace, 'enterprise_memory');
   assert.equal(result.operation, 'search');
-  assert.match(result.instruction, /search hex_memory/i);
+  assert.match(result.instruction, /search enterprise_memory/i);
   assert.match(result.query, /print1 method failure/);
   assert.equal(result.filters.changeType, 'method_addition');
   assert.equal(result.filters.risk, 'medium');

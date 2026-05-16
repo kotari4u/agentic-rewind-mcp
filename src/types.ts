@@ -94,9 +94,9 @@ export interface RiskAssessment {
   recommendedAction: RecommendationDecision;
 }
 
-export interface HexMemorySaveRequest {
+export interface EnterpriseMemorySaveRequest {
   instruction: string;
-  namespace: 'hex_memory';
+  namespace: 'enterprise_memory';
   operation: 'save';
   record: {
     schemaVersion: '1.0';
@@ -125,9 +125,9 @@ export interface HexMemorySaveRequest {
   redactionPolicy: string[];
 }
 
-export interface HexMemorySearchRequest {
+export interface EnterpriseMemorySearchRequest {
   instruction: string;
-  namespace: 'hex_memory';
+  namespace: 'enterprise_memory';
   operation: 'search';
   query: string;
   filters: {

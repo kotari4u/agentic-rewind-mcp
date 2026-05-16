@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createCheckpoint, diffCheckpoint, listCheckpoints, rewindToCheckpoint } from './checkpoint.js';
-import { assessRisk, planSafety, prepareHexMemorySave, prepareHexMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
+import { assessRisk, planSafety, prepareEnterpriseMemorySave, prepareEnterpriseMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
 
 main().catch(error => {
   const json = process.argv.includes('--json');
@@ -31,8 +31,8 @@ async function main(): Promise<void> {
         '  recommend [checkpoint-id] [--test-status pass|fail|unknown]',
         '  record-decision --decision <decision> --reason <reason>',
         '  search-memory --query <query>',
-        '  prepare-hex-save [--decision-id <id>] [--task-type <type>] [--change-type <type>] [--outcome <outcome>]',
-        '  prepare-hex-search [--query <query>] [--task-type <type>] [--change-type <type>]',
+        '  prepare-enterprise-save [--decision-id <id>] [--task-type <type>] [--change-type <type>] [--outcome <outcome>]',
+        '  prepare-enterprise-search [--query <query>] [--task-type <type>] [--change-type <type>]',
         '  summarize-session'
       ].join('\n')
     });
@@ -102,8 +102,8 @@ async function main(): Promise<void> {
     return output(json, { ok: true, ...await searchMemory(root, { query: takeOption(args, '--query') ?? '' }) });
   }
 
-  if (command === 'prepare-hex-save') {
-    return output(json, { ok: true, ...await prepareHexMemorySave(root, {
+  if (command === 'prepare-enterprise-save') {
+    return output(json, { ok: true, ...await prepareEnterpriseMemorySave(root, {
       decisionId: takeOption(args, '--decision-id'),
       workspaceName: takeOption(args, '--workspace-name'),
       taskType: takeOption(args, '--task-type'),
@@ -115,8 +115,8 @@ async function main(): Promise<void> {
     }) });
   }
 
-  if (command === 'prepare-hex-search') {
-    return output(json, { ok: true, ...await prepareHexMemorySearch(root, {
+  if (command === 'prepare-enterprise-search') {
+    return output(json, { ok: true, ...await prepareEnterpriseMemorySearch(root, {
       query: takeOption(args, '--query'),
       taskType: takeOption(args, '--task-type'),
       changeType: takeOption(args, '--change-type'),

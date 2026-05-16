@@ -52,8 +52,8 @@ rewind_record_event
 rewind_record_decision
 rewind_search_memory
 rewind_summarize_session
-rewind_prepare_hex_memory_save
-rewind_prepare_hex_memory_search
+rewind_prepare_enterprise_memory_save
+rewind_prepare_enterprise_memory_search
 ```
 
 ## Install And Build
@@ -239,18 +239,18 @@ Search memory:
 node dist/cli.js search-memory --query print1
 ```
 
-## hex_memory Handoff
+## enterprise_memory Handoff
 
-This repo does not implement a Hex/enterprise-memory plugin or client.
+This repo does not implement an enterprise-memory plugin or client.
 
-Instead, it exposes tools that prepare sanitized payloads and explicit instructions for the agent. The agent can then use whatever `hex_memory` capability exists in your enterprise environment.
+Instead, it exposes tools that prepare sanitized payloads and explicit instructions for the agent. The agent can then use whatever `enterprise_memory` capability exists in your enterprise environment.
 
 ### Prepare A Save Payload
 
 After a meaningful decision or outcome:
 
 ```bash
-node dist/cli.js prepare-hex-save \
+node dist/cli.js prepare-enterprise-save \
   --task-type java_refactor \
   --change-type method_addition \
   --outcome tests_passed_after_rewind \
@@ -261,16 +261,16 @@ node dist/cli.js prepare-hex-save \
 MCP tool:
 
 ```text
-rewind_prepare_hex_memory_save
+rewind_prepare_enterprise_memory_save
 ```
 
 The tool returns:
 
 ```json
 {
-  "namespace": "hex_memory",
+  "namespace": "enterprise_memory",
   "operation": "save",
-  "instruction": "Agent: save the following sanitized record to hex_memory...",
+  "instruction": "Agent: save the following sanitized record to enterprise_memory...",
   "record": {
     "type": "agentic_rewind_decision_summary",
     "taskType": "java_refactor",
@@ -283,7 +283,7 @@ The tool returns:
 Then tell the agent:
 
 ```text
-Use hex_memory to save this sanitized decision record.
+Use enterprise_memory to save this sanitized decision record.
 ```
 
 ### Prepare A Search Request
@@ -291,7 +291,7 @@ Use hex_memory to save this sanitized decision record.
 Before deciding whether to checkpoint, test, or rewind:
 
 ```bash
-node dist/cli.js prepare-hex-search \
+node dist/cli.js prepare-enterprise-search \
   --query "print1 method test failure" \
   --task-type java_refactor \
   --change-type method_addition \
@@ -301,16 +301,16 @@ node dist/cli.js prepare-hex-search \
 MCP tool:
 
 ```text
-rewind_prepare_hex_memory_search
+rewind_prepare_enterprise_memory_search
 ```
 
 Then tell the agent:
 
 ```text
-Use hex_memory to search for similar prior decisions before recommending an action.
+Use enterprise_memory to search for similar prior decisions before recommending an action.
 ```
 
-### What Goes To hex_memory
+### What Goes To enterprise_memory
 
 The payload is intentionally sanitized:
 
@@ -333,7 +333,7 @@ It does not include:
 - `.env` values
 - credentials or tokens
 
-Use local `.agentic-rewind/` for operational details and `hex_memory` for shared long-term decision patterns.
+Use local `.agentic-rewind/` for operational details and `enterprise_memory` for shared long-term decision patterns.
 
 ## Configuration
 
@@ -379,4 +379,4 @@ The test suite covers:
 - recommendations after test failure
 - observe-only hook event behavior
 - decision memory search
-- hex_memory save/search payload preparation
+- enterprise_memory save/search payload preparation

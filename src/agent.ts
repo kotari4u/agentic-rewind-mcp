@@ -3,7 +3,7 @@ import { changedPathsBetween, currentFilesByPath, diffCheckpoint, listCheckpoint
 import { listWorkspaceFiles } from './fs-utils.js';
 import { appendDecision, appendEvent, readDecisions, readEvents } from './store.js';
 import path from 'node:path';
-import type { DecisionRecord, EventRecord, HexMemorySaveRequest, HexMemorySearchRequest, RecommendationDecision, RiskAssessment, RiskLevel } from './types.js';
+import type { DecisionRecord, EventRecord, EnterpriseMemorySaveRequest, EnterpriseMemorySearchRequest, RecommendationDecision, RiskAssessment, RiskLevel } from './types.js';
 
 export async function recordEvent(root: string, input: { type: string; sessionId?: string; toolName?: string; prompt?: string; cwd?: string; files?: string[]; raw?: unknown }): Promise<EventRecord> {
   return appendEvent(root, input);
@@ -173,7 +173,7 @@ export async function planSafety(root: string, input: { task?: string; files?: s
   return { plan, risk };
 }
 
-export async function prepareHexMemorySave(root: string, input: {
+export async function prepareEnterpriseMemorySave(root: string, input: {
   decisionId?: string;
   workspaceName?: string;
   taskType?: string;
@@ -182,7 +182,7 @@ export async function prepareHexMemorySave(root: string, input: {
   testsBefore?: 'pass' | 'fail' | 'unknown';
   testsAfter?: 'pass' | 'fail' | 'unknown';
   notes?: string;
-} = {}): Promise<HexMemorySaveRequest> {
+} = {}): Promise<EnterpriseMemorySaveRequest> {
   const decisions = await readDecisions(root, 100);
   const events = await readEvents(root, 100);
   const decision = input.decisionId
@@ -199,7 +199,7 @@ export async function prepareHexMemorySave(root: string, input: {
       ? 'rejected'
       : 'unknown';
 
-  const record: HexMemorySaveRequest['record'] = {
+  const record: EnterpriseMemorySaveRequest['record'] = {
     schemaVersion: '1.0',
     type: decision?.decision === 'recommend_rewind' ? 'agentic_rewind_recovery_pattern' : 'agentic_rewind_decision_summary',
     timestamp: new Date().toISOString(),
@@ -233,9 +233,9 @@ export async function prepareHexMemorySave(root: string, input: {
   };
 
   return {
-    namespace: 'hex_memory',
+    namespace: 'enterprise_memory',
     operation: 'save',
-    instruction: 'Agent: save the following sanitized record to hex_memory. Do not store raw source code, full diffs, secrets, or checkpoint blobs. Use this record as shared long-term context across workspaces.',
+    instruction: 'Agent: save the following sanitized record to enterprise_memory. Do not store raw source code, full diffs, secrets, or checkpoint blobs. Use this record as shared long-term context across workspaces.',
     record,
     redactionPolicy: [
       'Do not include raw source code.',
@@ -247,13 +247,13 @@ export async function prepareHexMemorySave(root: string, input: {
   };
 }
 
-export async function prepareHexMemorySearch(_root: string, input: {
+export async function prepareEnterpriseMemorySearch(_root: string, input: {
   query?: string;
   taskType?: string;
   changeType?: string;
   risk?: RiskLevel;
   tags?: string[];
-} = {}): Promise<HexMemorySearchRequest> {
+} = {}): Promise<EnterpriseMemorySearchRequest> {
   const queryParts = [
     input.query,
     input.taskType && `task:${input.taskType}`,
@@ -263,9 +263,9 @@ export async function prepareHexMemorySearch(_root: string, input: {
   ].filter(Boolean).map(String);
 
   return {
-    namespace: 'hex_memory',
+    namespace: 'enterprise_memory',
     operation: 'search',
-    instruction: 'Agent: search hex_memory using this query before deciding whether to checkpoint, test, recommend rewind, or record a new outcome. Use any matching prior decisions as advisory context, not as an automatic command.',
+    instruction: 'Agent: search enterprise_memory using this query before deciding whether to checkpoint, test, recommend rewind, or record a new outcome. Use any matching prior decisions as advisory context, not as an automatic command.',
     query: queryParts.join(' ') || 'agentic-rewind code safety prior decisions recovery patterns',
     filters: {
       type: 'agentic_rewind_decision_summary OR agentic_rewind_recovery_pattern OR agentic_rewind_session_summary',

@@ -3,7 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { createCheckpoint, diffCheckpoint, listCheckpoints, rewindToCheckpoint } from './checkpoint.js';
-import { assessRisk, planSafety, prepareHexMemorySave, prepareHexMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
+import { assessRisk, planSafety, prepareEnterpriseMemorySave, prepareEnterpriseMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
 
 const server = new McpServer({
   name: 'agentic-rewind',
@@ -111,7 +111,7 @@ server.tool('rewind_summarize_session', 'Summarize recent event and decision mem
   limit: z.number().optional()
 }, async input => json(await summarizeSession(root(input.workspaceRoot), { sessionId: input.sessionId, limit: input.limit })));
 
-server.tool('rewind_prepare_hex_memory_save', 'Prepare a sanitized decision/session/recovery record and instruct the agent to save it to hex_memory. This does not call Hex directly.', {
+server.tool('rewind_prepare_enterprise_memory_save', 'Prepare a sanitized decision/session/recovery record and instruct the agent to save it to enterprise_memory. This does not call enterprise memory directly.', {
   workspaceRoot: z.string().optional(),
   decisionId: z.string().optional(),
   workspaceName: z.string().optional(),
@@ -123,10 +123,10 @@ server.tool('rewind_prepare_hex_memory_save', 'Prepare a sanitized decision/sess
   notes: z.string().optional()
 }, async input => {
   const { workspaceRoot, ...payload } = input;
-  return json(await prepareHexMemorySave(root(workspaceRoot), payload));
+  return json(await prepareEnterpriseMemorySave(root(workspaceRoot), payload));
 });
 
-server.tool('rewind_prepare_hex_memory_search', 'Prepare a hex_memory search request and instruct the agent to search shared memory before deciding. This does not call Hex directly.', {
+server.tool('rewind_prepare_enterprise_memory_search', 'Prepare an enterprise_memory search request and instruct the agent to search shared memory before deciding. This does not call enterprise memory directly.', {
   workspaceRoot: z.string().optional(),
   query: z.string().optional(),
   taskType: z.string().optional(),
@@ -135,7 +135,7 @@ server.tool('rewind_prepare_hex_memory_search', 'Prepare a hex_memory search req
   tags: z.array(z.string()).optional()
 }, async input => {
   const { workspaceRoot, ...payload } = input;
-  return json(await prepareHexMemorySearch(root(workspaceRoot), payload));
+  return json(await prepareEnterpriseMemorySearch(root(workspaceRoot), payload));
 });
 
 await server.connect(new StdioServerTransport());
