@@ -56,6 +56,8 @@ test('MCP server lists agentic rewind tools over stdio', async () => {
   assert.ok(names.includes('rewind_recommend_action'));
   assert.ok(names.includes('rewind_record_decision'));
   assert.ok(names.includes('rewind_restore_checkpoint'));
+  assert.ok(names.includes('rewind_prepare_hex_memory_save'));
+  assert.ok(names.includes('rewind_prepare_hex_memory_search'));
 });
 
 function waitFor(messages, predicate) {

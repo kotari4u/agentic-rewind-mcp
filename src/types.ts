@@ -94,6 +94,52 @@ export interface RiskAssessment {
   recommendedAction: RecommendationDecision;
 }
 
+export interface HexMemorySaveRequest {
+  instruction: string;
+  namespace: 'hex_memory';
+  operation: 'save';
+  record: {
+    schemaVersion: '1.0';
+    type: 'agentic_rewind_decision_summary' | 'agentic_rewind_session_summary' | 'agentic_rewind_recovery_pattern';
+    timestamp: string;
+    workspaceName?: string;
+    taskType?: string;
+    changeType?: string;
+    risk?: RiskLevel;
+    decision?: string;
+    action?: string;
+    approval?: 'approved' | 'rejected' | 'not_required' | 'unknown';
+    outcome?: string;
+    sanitizedReason: string;
+    evidence: {
+      checkpointId?: string;
+      testsBefore?: 'pass' | 'fail' | 'unknown';
+      testsAfter?: 'pass' | 'fail' | 'unknown';
+      filesChangedCount?: number;
+      fileTypes?: string[];
+      decisionsCount?: number;
+      eventsCount?: number;
+    };
+    tags: string[];
+  };
+  redactionPolicy: string[];
+}
+
+export interface HexMemorySearchRequest {
+  instruction: string;
+  namespace: 'hex_memory';
+  operation: 'search';
+  query: string;
+  filters: {
+    type?: string;
+    taskType?: string;
+    changeType?: string;
+    risk?: RiskLevel;
+    tags?: string[];
+  };
+  expectedUse: string;
+}
+
 export interface RewindReport {
   checkpointId: string;
   mode: 'delta' | 'change' | 'full';

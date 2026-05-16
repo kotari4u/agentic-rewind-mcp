@@ -52,6 +52,8 @@ rewind_record_event
 rewind_record_decision
 rewind_search_memory
 rewind_summarize_session
+rewind_prepare_hex_memory_save
+rewind_prepare_hex_memory_search
 ```
 
 ## Install And Build
@@ -237,6 +239,102 @@ Search memory:
 node dist/cli.js search-memory --query print1
 ```
 
+## hex_memory Handoff
+
+This repo does not implement a Hex/enterprise-memory plugin or client.
+
+Instead, it exposes tools that prepare sanitized payloads and explicit instructions for the agent. The agent can then use whatever `hex_memory` capability exists in your enterprise environment.
+
+### Prepare A Save Payload
+
+After a meaningful decision or outcome:
+
+```bash
+node dist/cli.js prepare-hex-save \
+  --task-type java_refactor \
+  --change-type method_addition \
+  --outcome tests_passed_after_rewind \
+  --tests-before fail \
+  --tests-after pass
+```
+
+MCP tool:
+
+```text
+rewind_prepare_hex_memory_save
+```
+
+The tool returns:
+
+```json
+{
+  "namespace": "hex_memory",
+  "operation": "save",
+  "instruction": "Agent: save the following sanitized record to hex_memory...",
+  "record": {
+    "type": "agentic_rewind_decision_summary",
+    "taskType": "java_refactor",
+    "changeType": "method_addition",
+    "outcome": "tests_passed_after_rewind"
+  }
+}
+```
+
+Then tell the agent:
+
+```text
+Use hex_memory to save this sanitized decision record.
+```
+
+### Prepare A Search Request
+
+Before deciding whether to checkpoint, test, or rewind:
+
+```bash
+node dist/cli.js prepare-hex-search \
+  --query "print1 method test failure" \
+  --task-type java_refactor \
+  --change-type method_addition \
+  --risk medium
+```
+
+MCP tool:
+
+```text
+rewind_prepare_hex_memory_search
+```
+
+Then tell the agent:
+
+```text
+Use hex_memory to search for similar prior decisions before recommending an action.
+```
+
+### What Goes To hex_memory
+
+The payload is intentionally sanitized:
+
+- decision
+- action
+- risk
+- approval state
+- outcome
+- task type
+- change type
+- file extensions and changed file count
+- generalized reason
+
+It does not include:
+
+- raw source code
+- full diffs
+- checkpoint blobs
+- secrets
+- `.env` values
+- credentials or tokens
+
+Use local `.agentic-rewind/` for operational details and `hex_memory` for shared long-term decision patterns.
+
 ## Configuration
 
 Optional config lives at:
@@ -281,3 +379,4 @@ The test suite covers:
 - recommendations after test failure
 - observe-only hook event behavior
 - decision memory search
+- hex_memory save/search payload preparation

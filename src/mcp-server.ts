@@ -3,7 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { createCheckpoint, diffCheckpoint, listCheckpoints, rewindToCheckpoint } from './checkpoint.js';
-import { assessRisk, planSafety, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
+import { assessRisk, planSafety, prepareHexMemorySave, prepareHexMemorySearch, recommendAction, recordDecision, recordEvent, searchMemory, summarizeSession } from './agent.js';
 
 const server = new McpServer({
   name: 'agentic-rewind',
@@ -110,5 +110,32 @@ server.tool('rewind_summarize_session', 'Summarize recent event and decision mem
   sessionId: z.string().optional(),
   limit: z.number().optional()
 }, async input => json(await summarizeSession(root(input.workspaceRoot), { sessionId: input.sessionId, limit: input.limit })));
+
+server.tool('rewind_prepare_hex_memory_save', 'Prepare a sanitized decision/session/recovery record and instruct the agent to save it to hex_memory. This does not call Hex directly.', {
+  workspaceRoot: z.string().optional(),
+  decisionId: z.string().optional(),
+  workspaceName: z.string().optional(),
+  taskType: z.string().optional(),
+  changeType: z.string().optional(),
+  outcome: z.string().optional(),
+  testsBefore: z.enum(['pass', 'fail', 'unknown']).optional(),
+  testsAfter: z.enum(['pass', 'fail', 'unknown']).optional(),
+  notes: z.string().optional()
+}, async input => {
+  const { workspaceRoot, ...payload } = input;
+  return json(await prepareHexMemorySave(root(workspaceRoot), payload));
+});
+
+server.tool('rewind_prepare_hex_memory_search', 'Prepare a hex_memory search request and instruct the agent to search shared memory before deciding. This does not call Hex directly.', {
+  workspaceRoot: z.string().optional(),
+  query: z.string().optional(),
+  taskType: z.string().optional(),
+  changeType: z.string().optional(),
+  risk: z.enum(['low', 'medium', 'high']).optional(),
+  tags: z.array(z.string()).optional()
+}, async input => {
+  const { workspaceRoot, ...payload } = input;
+  return json(await prepareHexMemorySearch(root(workspaceRoot), payload));
+});
 
 await server.connect(new StdioServerTransport());
